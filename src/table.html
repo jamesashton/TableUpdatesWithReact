@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>RealTimeTableUpdate</title>
+    <script src="http://fb.me/react-0.11.1.js"></script>
+    <script src="http://fb.me/JSXTransformer-0.11.1.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+
+</head>
+<body>
+
+<div id="priceApp"></div>
+
+<script type="text/jsx">
+    /** @jsx React.DOM */
+    var PriceApp = React.createClass({
+        getInitialState: function() {
+            return {pricelist:this.props.prices};
+        },
+        handleNewRowSubmit: function( newprice ) {
+            this.setState( {pricelist: this.state.pricelist.concat([newprice])} );
+        },
+        render: function() {
+            var tableStyle = {width: '100%'};
+            var leftTdStyle = {width: '50%',padding:'20px',verticalAlign: 'top'};
+            var rightTdStyle = {width: '50%',padding:'20px',verticalAlign: 'top'};
+            return (
+                <table style={tableStyle}>
+                    <tr>
+                        <td style={leftTdStyle}>
+                            <PriceList plist={this.state.pricelist} />
+                        </td>
+                        <td style={rightTdStyle}>
+                            <NewRow onRowSubmit={this.handleNewRowSubmit}/>
+                        </td>
+                    </tr>
+                </table>
+            );
+        }
+    });
+
+    var PriceList = React.createClass({
+        render: function() {
+            var prices = [];
+            var that = this; // TODO: Needs to find out why that = this made it work; Was getting error that onCompanyDelete is not undefined
+            this.props.plist.forEach(function(price) {
+                prices.push(<Price price={price}  /> );
+            });
+            return (
+                <div>
+                    <h3>PRICES</h3>
+                    <table className="table table-striped">
+                        <thead><tr><th>CURRENCY PAIR</th><th>BID</th><th>OFFER</th><th>DATETIME</th></tr></thead>
+                        <tbody>{prices}</tbody>
+                    </table>
+                </div>
+            );
+        }
+    });
+
+    var Price = React.createClass({
+        render: function() {
+            return (
+                <tr>
+                    <td>{this.props.price.ccypair}</td>
+                    <td>{this.props.price.bid}</td>
+                    <td>{this.props.price.offer}</td>
+                    <td>{this.props.price.datetime}</td>
+                </tr>
+            );
+        }
+    });
+
+    var NewRow = React.createClass({
+        handleSubmit: function() {
+            var ccypair = this.refs.ccypair.getDOMNode().value;
+            var bid = this.refs.bid.getDOMNode().value;
+            var offer = this.refs.offer.getDOMNode().value;
+            var datetime = this.refs.datetime.getDOMNode().value;
+            var newrow = {ccypair: ccypair, bid: bid, offer: offer, datetime: datetime };
+
+            this.props.onRowSubmit( newrow );
+
+            this.refs.ccypair.getDOMNode().value = '';
+            this.refs.bid.getDOMNode().value = '';
+            this.refs.offer.getDOMNode().value = '';
+            this.refs.datetime.getDOMNode().value = '';
+
+            return false;
+        },
+        render: function() {
+            var inputStyle = {padding:'12px'}
+            return (
+                <div className="well">
+                    <h3>Add A Price</h3>
+                    <form onSubmit={this.handleSubmit}>
+                        <div className="input-group input-group-lg" style={inputStyle}>
+                            <input type="text"  className="form-control col-md-8"  placeholder="Currency Pair" ref="ccypair"/>
+                        </div>
+                        <div className="input-group input-group-lg" style={inputStyle}>
+                            <input type="text"  className="form-control col-md-8" placeholder="Bid" ref="bid"/>
+                        </div>
+                        <div className="input-group input-group-lg" style={inputStyle}>
+                            <input type="text"  className="form-control col-md-8" placeholder="Offer" ref="offer"/>
+                        </div>
+                        <div className="input-group input-group-lg" style={inputStyle}>
+                            <input type="text"  className="form-control col-md-8" placeholder="DateTime" ref="datetime"/>
+                        </div>
+                        <div className="input-group input-group-lg" style={inputStyle}>
+                            <input type="submit"  className="btn btn-primary" value="Add Price"/>
+                        </div>
+                    </form>
+                </div>
+            );
+        }
+    });
+    var defPrices = [{ccypair:"EURUSD",bid:1.2,offer:1.1,datetime: "2017/06/30 02:10" },{ccypair:"EURUSD",bid:1.2,offer:1.15,hoffice:"Mumbai", datetime: "2017/06/30 02:11" }];
+    React.renderComponent( <PriceApp prices={defPrices}/>, document.getElementById( "priceApp" ) );
+</script>
+</body>
+</html>

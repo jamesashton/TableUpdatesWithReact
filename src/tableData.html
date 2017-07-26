@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>RealTimeTableUpdate</title>
+    <script src="http://fb.me/react-0.11.1.js"></script>
+    <script src="http://fb.me/JSXTransformer-0.11.1.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+
+</head>
+<body>
+
+<div id="priceApp"></div>
+
+<script type="text/jsx">
+    /** @jsx React.DOM */
+    var PriceApp = React.createClass({
+        intervalId: 0,
+        getInitialState: function() {
+            return {pricelist:this.props.prices};
+        },
+        handleNewRowSubmit: function( newprice ) {
+            this.setState( {pricelist: _self.state.pricelist.concat([newprice])} );
+        },
+        startStopToggle: function() {
+            var _state = this.state;
+            var _self = this;
+            var newprice = {ccypair: 'EURUSD', bid: 1.1, offer: 1.1, datetime: "TEST"};
+            var tick = function() {
+                _self.setState({pricelist: _state.pricelist.concat([newprice])});
+            };
+            console.log("setting interval");
+            setInterval(tick,1000);
+           // setInterval(tick,1000);
+        },
+        render: function() {
+            var tableStyle = {width: '100%'};
+            var leftTdStyle = {width: '50%',padding:'20px',verticalAlign: 'top'};
+            var rightTdStyle = {width: '50%',padding:'20px',verticalAlign: 'top'};
+            return (
+                <table style={tableStyle}>
+                    <tr>
+                        <td style={leftTdStyle}>
+                            <PriceList plist={this.state.pricelist} />
+                        </td>
+                        <td style={rightTdStyle}>
+                            <NewRow onStartStopToggle={this.startStopToggle} onRowSubmit={this.handleNewRowSubmit}/>
+                        </td>
+                    </tr>
+                </table>
+            );
+        }
+    });
+
+    var PriceList = React.createClass({
+        render: function() {
+            var prices = [];
+            var that = this; // TODO: Needs to find out why that = this made it work; Was getting error that onCompanyDelete is not undefined
+            this.props.plist.forEach(function(price) {
+                prices.push(<Price price={price}  /> );
+            });
+            return (
+                <div>
+                    <h3>PRICES</h3>
+                    <table className="table table-striped">
+                        <thead><tr><th>CURRENCY PAIR</th><th>BID</th><th>OFFER</th><th>DATETIME</th></tr></thead>
+                        <tbody>{prices}</tbody>
+                    </table>
+                </div>
+            );
+        }
+    });
+
+    var Price = React.createClass({
+        render: function() {
+            return (
+                <tr>
+                    <td>{this.props.price.ccypair}</td>
+                    <td>{this.props.price.bid}</td>
+                    <td>{this.props.price.offer}</td>
+                    <td>{this.props.price.datetime}</td>
+                </tr>
+            );
+        }
+    });
+
+    var NewRow = React.createClass({
+        handleClick: function() {
+            console.log("Handling click");
+            this.props.onStartStopToggle();
+
+        },
+        render: function() {
+            var inputStyle = {padding:'12px'}
+            return (
+                <div className="well">
+                    <h3>Start/Stop Prices</h3>
+                    <a onClick={this.handleClick}>Add Price</a>
+                </div>
+            );
+        }
+    });
+    var defPrices = [{ccypair:"EURUSD",bid:1.2,offer:1.1,datetime: "2017/06/30 02:10" },{ccypair:"EURUSD",bid:1.2,offer:1.15,hoffice:"Mumbai", datetime: "2017/06/30 02:11" }];
+    React.renderComponent( <PriceApp prices={defPrices}/>, document.getElementById( "priceApp" ) );
+</script>
+</body>
+</html>
