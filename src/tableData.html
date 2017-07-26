@@ -19,14 +19,18 @@
             return {pricelist:this.props.prices};
         },
         handleNewRowSubmit: function( newprice ) {
-            this.setState( {pricelist: _self.state.pricelist.concat([newprice])} );
+            var pricelist = this.state.pricelist;
+            pricelist.push([newprice]);
+            this.setState( {pricelist: pricelist } );
         },
         startStopToggle: function() {
             var _state = this.state;
             var _self = this;
             var newprice = {ccypair: 'EURUSD', bid: 1.1, offer: 1.1, datetime: "TEST"};
             var tick = function() {
-                _self.setState({pricelist: _state.pricelist.concat([newprice])});
+                console.log("tick");
+                _self.setState( {pricelist: _self.state.pricelist.concat([newprice])} );
+
             };
             console.log("setting interval");
             setInterval(tick,1000);
